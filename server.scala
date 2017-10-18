@@ -7,18 +7,33 @@ object server{
 					server.setHandler(new Handler)
 					server.start
 	}
-	class Handler extends AbstractHandler {
-		//var html = <h1>Something, innit</h1>
-		var html = "Something, innit"
+case class Product(var name: String,var prix: String)
 
-				override def handle(target: String,
-						req: Request,
-						httpReq: HttpServletRequest,
-						httpRes: HttpServletResponse) = {
-								httpRes.setContentType("text/html")
-								httpRes.setStatus(HttpServletResponse.SC_OK)
-								httpRes.getWriter().println(html.toString)
-								req.setHandled(true)
+case class Html(content: String)
+
+def produceHtml(products: List[Product]): Html = {
+		Html {
+			products.map { product =>
+			"<tr>"+
+			"<td>"+product.name+"</td>"+
+			"<td>"+product.prix+"</td>"+
+			"</tr>"
+			}.mkString("\t")
+		}
+	}
+
+	class Handler extends AbstractHandler {
+		var html = List(new Product("1","11"),new Product("2","22"));
+		var s = "<table>"+produceHtml(html).content+"</table>";
+		
+		override def handle(target: String,
+				req: Request,
+				httpReq: HttpServletRequest,
+				httpRes: HttpServletResponse) = {
+						httpRes.setContentType("text/html")
+						httpRes.setStatus(HttpServletResponse.SC_OK)
+						httpRes.getWriter().write(s)
+						req.setHandled(true)
 		}
 	}
 }
