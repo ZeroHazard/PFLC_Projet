@@ -23,8 +23,14 @@ def produceHtml(products: List[Product]): Html = {
 	}
 
 	class Handler extends AbstractHandler {
-		var html = List(new Product("1","11"),new Product("2","22"));
-		var s = "<table>"+produceHtml(html).content+"</table>";
+		var data = List(new Product("1","11"),new Product("2","22"));
+		//Debut du fichier HTML
+		var htmlTemplate = "<!DOCTYPE html><html><head><style>table {border-collapse: collapse;width: 100%;}"+
+		"th, td {text-align: left;padding: 8px;}tr:nth-child(even){background-color: #f2f2f2}</style></head><body><table>"
+		//Fin du fichier HTML
+		var htmlTemplate2="</table></body></html>"
+		
+		var html = htmlTemplate+produceHtml(data).content+htmlTemplate2;
 		
 		override def handle(target: String,
 				req: Request,
@@ -32,7 +38,7 @@ def produceHtml(products: List[Product]): Html = {
 				httpRes: HttpServletResponse) = {
 						httpRes.setContentType("text/html")
 						httpRes.setStatus(HttpServletResponse.SC_OK)
-						httpRes.getWriter().write(s)
+						httpRes.getWriter().write(html)
 						req.setHandled(true)
 		}
 	}
