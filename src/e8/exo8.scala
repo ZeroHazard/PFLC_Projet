@@ -1,5 +1,5 @@
+package e8;
 import JaCoP.scala._;
-import e7.UE;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.{Server, Request};
 import javax.servlet.http.{HttpServletRequest, HttpServletResponse};
@@ -48,37 +48,36 @@ object exo8 extends jacop{
   ("Préparation à l'intégration professionnelle","I3160",              0, 4,  List(32,33),       List(12)),
   ("Intégration en milieu professionnel","I3080",                      0,26,  List(31,34),       Nil)
   )
-  /*  Tous les cours   */ val UE              = _1++_2++_3;
-  /*	Parcours total	 */ def index           = List range(0,UE length);
-  /*	Noms des ues     */ def nom(i:Int)      = UE(i)._2 +" "+ UE(i)._1
-  /*	ects q1 + q2     */ def ects(i:Int)     = UE(i)._3 + UE(i)._4;
-  /*							     */ def corequis(i:Int) = UE(i)._5;
-  /*							     */ def prerequis(i:Int)= UE(i)._6;
-  /*  Variables			   */ val vars            = index map ( i => BoolVar(nom(i)));
-  /*  ECTS*Variables   */ val pondere         = index map ( i => ects(i)*vars(i));
-  /*  UE options       */ val options         = List(vars(28),vars(30),vars(32));
-  /*	Parcours options */ def index_options   = List range(0,options length);
-	/*  Exemples 				 */ val etudiants       = ((36,0),(12,24),(15,21),(25,11));
-	/*  Exemple testé    */ val cours           = List.fill(etudiants._3._1)(true) ++List.fill(etudiants._3._2)(false) zipWithIndex;
-	/*  Options etudiants*/ val opt_1           = 0; val opt = 1; val opt_3 = 2;
-	/*  ECTS d'etudiant  */ val total           = cours filter(_._1 == true) map(c=>ects(c._2)) sum
-	/*  Minimum ECTS	   */ val infraMoins      = 60-sum(pondere);
-	/*  Maximum ECTS	   */ val infraTrop       = sum(pondere)-60;
-	/*	Bloquant 1BIN		 */ val infraB1         = sum(List(vars(9), vars(30)));
-	/*	Bloquant 2BIN		 */ val infraB2         = sum(List(vars(18),vars(35)));
-	/*  Bloquant 1BIN    */ val infraB1p        = IntVar("infraction bloc 1 processé", 1, 30);
-	/*  Bloquant 2BIN    */ val infraB2p        = IntVar("infraction bloc 2 processé", 1, 30);
-	/*  ECTS enfreints   */ val infraECTS       = IntVar("ECTS",0,30);
-	/*  Transformations  */ val infraRequis     = sum(for( i <- index;ps=prerequis(i); p<-ps; if ps!=Nil) yield vars(i)/\vars(p));
-	/*  Infractions		   */ val infractions     = infraRequis + infraECTS + 1000*infraB1p + 1000*infraB2p ;
-	/*	Cours validable	 */ def valide( i:Int ) = !cours(i)._1  ;
+  /*  Tous les cours    */ val UE              = _1++_2++_3;
+  /*  Parcours total    */ def index           = List range(0,UE length);
+  /*  Noms des ues      */ def nom(i:Int)      = UE(i)._2 +" "+ UE(i)._1
+  /*  ects q1 + q2      */ def ects(i:Int)     = UE(i)._3 + UE(i)._4;
+  /*  Corequis d'UE     */ def corequis(i:Int) = UE(i)._5;
+  /*  Prérequis d'UE 	*/ def prerequis(i:Int)= UE(i)._6;
+  /*  Variables		*/ val vars            = index map ( i => BoolVar(nom(i)));
+  /*  ECTS*Variables    */ val pondere         = index map ( i => ects(i)*vars(i));
+  /*  UE options        */ val options         = List(vars(28),vars(30),vars(32));
+  /*  Parcours options  */ def index_options   = List range(0,options length);
+  /*  Exemples 		*/ val etudiants       = ((36,0),(12,24),(15,21),(25,11));
+  /*  Exemple testé     */ val cours           = List.fill(etudiants._3._1)(true) ++List.fill(etudiants._3._2)(false) zipWithIndex;
+  /*  Option testée 	*/ val opt_1           = 0; val opt = 1; val opt_3 = 2;
+  /*  ECTS testé	*/ val total           = cours filter(_._1 == true) map(c=>ects(c._2)) sum
+  /*  Minimum ECTS	*/ val infraMoins      = 60-sum(pondere);
+  /*  Maximum ECTS	*/ val infraTrop       = sum(pondere)-60;
+  /*  Bloquant 1BIN	*/ val infraB1         = sum(List(vars(9), vars(30)));
+  /*  Bloquant 2BIN	*/ val infraB2         = sum(List(vars(18),vars(35)));
+  /*  Bloquant 1BIN     */ val infraB1p        = IntVar("infraction bloc 1 processé", 1, 30);
+  /*  Bloquant 2BIN     */ val infraB2p        = IntVar("infraction bloc 2 processé", 1, 30);
+  /*  ECTS enfreints    */ val infraECTS       = IntVar("ECTS",0,30);
+  /*  Transformations   */ val infraRequis     = sum(for( i <- index;ps=prerequis(i); p<-ps; if ps!=Nil) yield vars(i)/\vars(p));
+  /*  Infractions	*/ val infractions     = infraRequis + infraECTS + 1000*infraB1p + 1000*infraB2p ;
+  /*  Cours validable	*/ def valide( i:Int ) = !cours(i)._1  ;
 
-
-	  if(total<45)
+  if(total<45)
     	for ( (cours,i) <- _1.zipWithIndex if valide(i) ) println(cours._1);	
-    else if(total>120)
+  else if(total>120)
       cours filter (i=>valide(i._2)) map (i=>println(nom(i._2)));
-    else {
+  else {
       max(List(IntVar("1",1,1), infraB1),infraB1p);
       max(List(IntVar("1",1,1), infraB2),infraB2p);
       for( i <- index){
@@ -91,7 +90,7 @@ object exo8 extends jacop{
       max(List(10*infraMoins, 7*infraTrop), infraECTS);
       val result = minimize(search(vars,smallest, indomain_max),infractions,()=>{
         println("Cost " + infractions.value + ":\n");
-        vars filter( c=>c.value()==1 ) map( c=>println( c.id() ) );
+        vars filter( _.value()==1 ) map( c=>println( c.id() ) );
         List range(0,60)map(x=>print( "=" ));println;
       })
       if(result){
@@ -99,12 +98,12 @@ object exo8 extends jacop{
         server.setHandler(new AbstractHandler{        		
             		override def handle(target: String,req: Request,
             		    httpReq: HttpServletRequest,httpRes: HttpServletResponse) = {
-                httpRes.setContentType("text/html");
-                httpRes.setStatus(HttpServletResponse.SC_OK);
-                httpRes.getWriter().write("<label>PAE</label><br>");
-                for (cours<-vars.filter(c=>c.value()==1))
-                  httpRes.getWriter().write(""+cours.id()+"<br>");
-                req.setHandled(true);
+                      httpRes.setContentType("text/html");
+                      httpRes.setStatus(HttpServletResponse.SC_OK);
+                      httpRes.getWriter().write("<b>PAE</b><br>");
+                      for (cours<-vars.filter(c=>c.value()==1))
+                        httpRes.getWriter().write(""+cours.id()+"<br>");
+                      req.setHandled(true);
               		}
               });
         server.start
