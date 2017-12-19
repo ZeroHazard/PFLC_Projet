@@ -71,10 +71,11 @@ object exo8 extends jacop{
   					httpRes.setStatus(HttpServletResponse.SC_OK);
   					httpRes.getWriter().write("<b>PAE</b><br>");
   					for (cours<-list) httpRes.getWriter().write(""+cours+"<br>");
-  				  req.setHandled(true);
-					}
+  				  	req.setHandled(true);
+				}
 			});
-			server.start;}
+			server.start;
+		}
 		/*  Les trois cas possibles  */
 		def moinsDe45ECTS = for ( (cours,i) <- _1.zipWithIndex if valide(i) ) yield(cours._1);
 		def plusDe120ECTS = (cours filter (i=>valide(i._2) && !options.contains(i)) map (i=>nom(i._2))) ++ nom(cours(options(opt))._2);
